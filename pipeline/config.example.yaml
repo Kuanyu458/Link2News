@@ -1,0 +1,56 @@
+# Copy to ~/.config/weekly-report/config.yaml before first use.
+collector:
+  base_url: "https://weekly-report-collector.YOUR_SUBDOMAIN.workers.dev"
+
+line:
+  # U... (user), C... (group), or R... (room). Keep the same value in the
+  # Worker's ALLOWED_SOURCE_IDS secret/variable.
+  push_to: ""
+
+output_dir: "output"
+
+report:
+  title: "Weekly Digest"
+  language: "zh-TW"
+
+podcast:
+  enabled: true
+  target_minutes: 15
+  tts_backend: "edge"
+  voices:
+    host: "zh-TW-YunJheNeural"
+    guest: "zh-TW-HsiaoChenNeural"
+  openvoice:
+    python: ""
+    checkpoints_dir: ""
+    reference_host: ""
+    reference_guest: ""
+
+llm:
+  # claude-cli | codex-cli | api
+  backend: "claude-cli"
+  claude_model: ""
+  codex_path: "codex"
+  codex_model: ""
+  codex_search: false
+
+project_context: "Describe the reader's role, projects, and interests."
+
+resolve:
+  max_depth: 2
+  per_post_cap: 3
+  social_comment_limit: 5
+  title_guess_timeout_seconds: 45
+  social_domains:
+    - twitter.com
+    - x.com
+    - threads.net
+    - threads.com
+    - facebook.com
+    - m.facebook.com
+    - reddit.com
+    - www.reddit.com
+    - old.reddit.com
+    - news.ycombinator.com
+    - linkedin.com
+    - t.me

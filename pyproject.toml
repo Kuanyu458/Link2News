@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "line-ai-weekly-report"
+version = "0.1.0b1"
+description = "A self-hosted LINE-to-PDF-and-podcast weekly digest for macOS"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = { file = "LICENSE" }
+authors = [{ name = "Weekly Report contributors" }]
+dependencies = [
+  "Jinja2>=3.1,<4",
+  "Pillow>=11,<12",
+  "playwright>=1.50,<2",
+  "pypdfium2>=4.30,<5",
+  "PyYAML>=6,<7",
+  "requests>=2.32,<3",
+  "trafilatura>=2.1,<3",
+]
+
+[project.optional-dependencies]
+podcast = ["edge-tts>=7.2,<8"]
+dev = [
+  "pip-tools>=7.5,<8",
+  "pytest>=8.4,<9",
+  "ruff>=0.12,<1",
+]
+
+[project.scripts]
+weekly-report = "pipeline.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["pipeline*"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

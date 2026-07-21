@@ -1,0 +1,13 @@
+{
+  "name": "line-ai-weekly-report-worker",
+  "version": "0.1.0-beta.1",
+  "private": true,
+  "description": "Cloudflare Worker tooling for LINE AI Weekly Report",
+  "scripts": {
+    "test": "node --test tests/worker_status_test.mjs tests/worker_artifact_test.mjs",
+    "deploy": "wrangler deploy --config collector/wrangler.toml"
+  },
+  "devDependencies": {
+    "wrangler": "4.110.0"
+  }
+}

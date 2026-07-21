@@ -1,0 +1,42 @@
+# macOS / editors
+.DS_Store
+._*
+.idea/
+.vscode/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Node / Cloudflare local state
+node_modules/
+collector/.wrangler/
+collector/wrangler.toml
+.dev.vars
+
+# Local configuration and credentials
+pipeline/config.yaml
+secrets.env
+*.secrets.env
+
+# Generated and personal data
+output/
+tmp/
+文獻庫/
+data/known_terms.json
+背景執行產出
+背景執行文獻庫
+*.log
+
+# Optional local voice samples and models
+voice-samples/
+checkpoints*/
+*.pth
+*.pt
+*.ckpt
