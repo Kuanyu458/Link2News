@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a reproducible defect without private data
+title: "[Bug]: "
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include expected and actual behavior. Remove secrets and personal IDs.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: macOS, Python, Node, and project version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Minimal commands or steps using synthetic data
+    validations:
+      required: true

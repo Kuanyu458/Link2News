@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1c1a16; --red: #8c1f14; --paper: #f4efe2;
+    --paper-dk: #eae3d0; --frame: #8d8168; --rule: #b8ad93;
+  }
+  body {
+    width: 2500px; height: 843px; overflow: hidden;
+    font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+    background-color: var(--paper);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.42 0 0 0 0 0.34 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap {
+    position: absolute; inset: 18px;
+    border: 3px solid var(--frame); outline: 9px double var(--frame); outline-offset: -12px;
+    display: flex; flex-direction: column;
+  }
+  .banner {
+    height: 136px; display: flex; align-items: center; justify-content: center;
+    gap: 40px; border-bottom: 4px solid var(--ink);
+  }
+  .banner .title {
+    font-family: "Songti TC", "Noto Serif TC", serif;
+    font-size: 70px; font-weight: 900; color: var(--red); letter-spacing: .35em;
+  }
+  .banner .sub { font-size: 30px; color: #57503f; letter-spacing: .5em; }
+  .grid { flex: 1; display: flex; }
+  .cell {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 22px; position: relative;
+  }
+  .cell + .cell { border-left: 2.5px solid var(--rule); }
+  .cell .icon {
+    width: 160px; height: 160px; border: 4px solid var(--ink); background: var(--paper-dk);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 88px; box-shadow: 9px 9px 0 rgba(28,26,22,.15);
+  }
+  .cell .label {
+    font-size: 43px; font-weight: 800; color: var(--ink); letter-spacing: .08em;
+    text-align: center; white-space: nowrap;
+  }
+  .cell .hint { font-size: 24px; color: #57503f; letter-spacing: .06em; text-align: center; }
+  .cell .tag {
+    position: absolute; top: 28px; right: 34px;
+    font-family: "Songti TC", serif; font-size: 30px; font-weight: 700; color: var(--red);
+    border: 2px solid var(--red); padding: 6px 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">
+    <span class="title">週知快報</span>
+    <span class="sub">私人研究週刊・服務選單</span>
+  </div>
+  <div class="grid">
+    <div class="cell">
+      <span class="tag">壹</span>
+      <div class="icon">🗞️</div>
+      <div class="label">生成週報</div>
+      <div class="hint">彙整本週連結製作報紙</div>
+    </div>
+    <div class="cell">
+      <span class="tag">貳</span>
+      <div class="icon">🔁</div>
+      <div class="label">重新生成上次週報</div>
+      <div class="hint">沿用上次素材重新製作</div>
+    </div>
+    <div class="cell">
+      <span class="tag">參</span>
+      <div class="icon">🧠</div>
+      <div class="label">指定生成模型</div>
+      <div class="hint">切換 Claude／Codex</div>
+    </div>
+    <div class="cell">
+      <span class="tag">肆</span>
+      <div class="icon">📋</div>
+      <div class="label">查看待處理清單</div>
+      <div class="hint">未能自動解析的連結</div>
+    </div>
+    <div class="cell">
+      <span class="tag">伍</span>
+      <div class="icon">📖</div>
+      <div class="label">本週新術語介紹</div>
+      <div class="hint">五個關鍵名詞科普</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

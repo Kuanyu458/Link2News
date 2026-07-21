@@ -1,0 +1,32 @@
+name = "weekly-report-collector"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "weekly-report"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "weekly-report-artifacts"
+
+[vars]
+# Comma-separated LINE user/group/room IDs. An empty list rejects all LINE
+# events until setup is completed.
+ALLOWED_SOURCE_IDS = ""
+DATA_RETENTION_DAYS = "90"
+DEFAULT_MODEL = "claude-cli"
+AVAILABLE_MODELS_JSON = '''
+[
+  {"label":"Claude CLI default","value":"claude-cli"},
+  {"label":"Codex CLI default","value":"codex-cli"}
+]
+'''
+
+[triggers]
+crons = ["17 3 * * *"]
+
+# Configure secrets with `npx wrangler secret put <NAME>`:
+# LINE_CHANNEL_SECRET, LINE_CHANNEL_ACCESS_TOKEN, API_SECRET,
+# ARTIFACT_SIGNING_SECRET
