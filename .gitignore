@@ -34,6 +34,13 @@ data/known_terms.json
 背景執行文獻庫
 *.log
 
+# Rebuildable or private documentation artifacts
+scripts/richmenu.png
+docs/assets/weekly_*.pdf
+docs/assets/weekly_*-preview.png
+docs/assets/link2news-preview.png
+docs/assets/paper-*.png
+
 # Optional local voice samples and models
 voice-samples/
 checkpoints*/

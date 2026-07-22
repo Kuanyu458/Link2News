@@ -15,20 +15,20 @@ digest and optional podcast, then returns private mobile links through LINE.
 
 ## See the result
 
-### Newspaper-style report
+### LINE delivery
 
-[![A preview of the Link2News 2026-W28 report using public papers](docs/assets/weekly_2026-W28-preview.png)](docs/assets/weekly_2026-W28.pdf)
-
-[📄 Open or download the complete five-page `weekly_2026-W28.pdf` demo](docs/assets/weekly_2026-W28.pdf)
+<p align="center">
+  <img src="docs/assets/line-weekly-report-demo.jpg" alt="Link2News delivering a report PDF, podcast, and Rich Menu controls in LINE" width="420">
+</p>
+<p align="center"><sub>The completion card links to the PDF and podcast, while the Rich Menu provides report controls.</sub></p>
 
 ### Podcast demo
 
 [🎧 Play or download the ~30-second podcast demo](docs/assets/link2news-podcast-demo.mp3)
 
-> The PDF demo cites public papers and preserves source references. Original
-> figures retain their respective licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
-> The podcast demo uses synthetic text and system-generated speech. The
-> repository contains no user messages, private reports, or credentials.
+> The podcast demo uses synthetic text and system-generated speech. Generated
+> reports, downloaded papers, user messages, private reports, and credentials
+> are not versioned in this repository.
 
 Every focus story, featured paper, and academic roundup includes a figure or
 table from the corresponding source, with its attribution preserved.
@@ -46,11 +46,6 @@ table from the corresponding source, with its attribution preserved.
 2. Use the Rich Menu to generate or regenerate a report, select a model, or inspect pending items.
 3. Let the Mac background runner generate the PDF and optional podcast.
 4. Open the PDF, download the podcast, or play the audio directly from LINE.
-
-<p align="center">
-  <img src="docs/assets/line-weekly-report-demo.jpg" alt="Link2News delivering a report PDF, podcast, and Rich Menu controls in LINE" width="420">
-</p>
-<p align="center"><sub>LINE delivery example with direct PDF and podcast actions plus Rich Menu controls.</sub></p>
 
 ## Usage limits
 
