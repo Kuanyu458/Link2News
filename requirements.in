@@ -1,7 +1,7 @@
 Jinja2>=3.1,<4
 Pillow>=11,<12
 playwright>=1.50,<2
-pypdfium2>=4.30,<5
+pypdfium2>=4.30,<6
 PyYAML>=6,<7
 requests>=2.32,<3
 trafilatura>=2.1,<3
