@@ -9,11 +9,7 @@
 
 [English](README.en.md) · [安裝與技術文件](docs/TECHNICAL.md) · [HTTP API](docs/API.md) · [安全與隱私](docs/SECURITY_AND_PRIVACY.md)
 
-![Link2News 從 LINE 連結產生新聞式週報與 Podcast](docs/assets/link2news-product-banner.png)
-
-## 從一個連結到一份週報
-
-![Link2News 工作流程：LINE 連結轉成週報與 Podcast](docs/assets/link2news-workflow-hero.png)
+## 成果展示
 
 ### 新聞式週報
 
@@ -23,7 +19,7 @@
 
 [🎧 播放／下載 Podcast 音檔範例（約 30 秒）](docs/assets/link2news-podcast-demo.mp3)
 
-> 展示圖、週報與音檔全部使用合成資料與系統語音；repository 不包含任何使用者訊息、文獻、報告或憑證。
+> 週報示例使用公開文獻與已標示來源的 CC BY 4.0 圖片；Podcast Demo 使用合成文本與系統語音。repository 不包含使用者訊息、私有報告或憑證。
 
 ## 它會做什麼
 

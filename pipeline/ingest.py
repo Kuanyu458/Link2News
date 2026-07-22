@@ -209,6 +209,24 @@ def extract_pdf_figures(pdf_path: Path, assets_dir: Path, max_figures: int = 6) 
                     if len(figures) >= max_figures:
                         break
                 page.close()
+            if max_figures > 0 and not figures and len(doc) > 0:
+                # 保底：有些 PDF 的 caption 無法從文字層辨識。用首頁縮圖
+                # 代替空白專欄，並明確標示為論文預覽而非 Figure。
+                page = doc[0]
+                try:
+                    bitmap = page.render(scale=150 / 72)
+                    try:
+                        fname = f"{pdf_path.stem}_p1_preview.png"
+                        fpath = assets_dir / fname
+                        bitmap.to_pil().save(fpath, format="PNG")
+                        figures.append({
+                            "path": str(fpath),
+                            "caption": f"論文首頁預覽：{pdf_path.stem}",
+                        })
+                    finally:
+                        bitmap.close()
+                finally:
+                    page.close()
         finally:
             doc.close()
     except Exception as e:

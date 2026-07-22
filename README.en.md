@@ -13,22 +13,19 @@ mobile-friendly newspaper PDF and podcast. Share sources with a LINE bot. When y
 request a report, a Mac pipeline resolves the links, creates a cited weekly
 digest and optional podcast, then returns private mobile links through LINE.
 
-![Link2News turns LINE links into a newspaper report and podcast](docs/assets/link2news-product-banner.png)
-
 ## See the result
-
-![Link2News workflow from LINE link to weekly report and podcast](docs/assets/link2news-workflow-hero.png)
 
 ### Newspaper-style report
 
-![A privacy-safe synthetic Link2News report preview](docs/assets/link2news-preview.png)
+![A privacy-safe Link2News report preview using public papers](docs/assets/link2news-preview.png)
 
 ### Podcast demo
 
 [🎧 Play or download the ~30-second podcast demo](docs/assets/link2news-podcast-demo.mp3)
 
-> Every showcase asset uses synthetic data and system-generated speech. The
-> repository contains no user messages, papers, reports, or credentials.
+> The report example uses public papers and attributed CC BY 4.0 figures. The
+> podcast demo uses synthetic text and system-generated speech. The repository
+> contains no user messages, private reports, or credentials.
 
 ## Requirements
 

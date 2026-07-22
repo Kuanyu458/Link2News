@@ -1,5 +1,6 @@
-"""Render a privacy-safe Link2News README preview from synthetic content."""
+"""Render a privacy-safe README preview from public, attributed paper examples."""
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from jinja2 import Environment, FileSystemLoader
 from playwright.sync_api import sync_playwright
@@ -17,86 +18,96 @@ def main() -> None:
     focus = [
         {
             "kicker": "本週主題",
-            "headline": "小模型開始接手真正的工具任務",
+            "headline": "AI 消費正在成為新的市場因子",
             "paragraphs": [
-                "本週的共同訊號不是模型又變大，而是更小、更可控的模型開始可靠地呼叫工具、整理資料並留下可查核的結果。",
-                "對開發團隊而言，重點正從單次回答品質移向完整工作流：權限、重試、觀測與人工覆核缺一不可。",
+                "研究團隊用 380.8 兆 token 的實際消費資料，觀察 AI 擴散如何反映在公司報酬與工作技能上。",
+                "對開發團隊而言，使用深度可能比「有沒有使用 AI」更能解釋組織差異。",
             ],
-            "refs": [1, 2],
+            "refs": [1],
         },
         {
-            "kicker": "開源觀察",
-            "headline": "代理框架把可追蹤性放到第一順位",
-            "paragraphs": ["新的開源工具讓每一次模型決策、工具參數與失敗重試都能被還原。"],
-            "refs": [3],
+            "kicker": "離線智慧",
+            "headline": "把模糊需求編譯成可重複使用的小模型",
+            "paragraphs": ["Program-as-Weights 讓雲端模型只需編譯一次，後續即可在本機以輕量解譯器離線執行。"],
+            "refs": [2],
         },
         {
             "kicker": "實務提醒",
-            "headline": "先設計失敗路徑，再談自動化率",
-            "paragraphs": ["能安全停下、交還人工並保留證據，才是可長期運作的自動化。"],
-            "refs": [4],
+            "headline": "先區分一次性編譯與長期推論成本",
+            "paragraphs": ["當同一個判斷函數會重複執行，把能力編譯成本機產物，才能同時改善延遲、成本與隱私。"],
+            "refs": [2],
         },
     ]
     featured = [
         {
             "ref": 1,
-            "headline": "讓工具呼叫從展示走向可靠執行",
-            "meta": "Link2News Demo et al. · 合成示例 · example.org/paper-1",
+            "headline": "380 兆 token 描出 AI 經濟的輪廓",
+            "meta": "Nicola Borri, Yukun Liu, Aleh Tsyvinski · arXiv:2606.30583",
             "abstract": {
-                "problem": "模型會選對工具，卻可能在參數與狀態管理上失敗。",
-                "method": "以結構化輸出、可重試執行器與逐步驗證組成閉環。",
-                "result": "合成測試中的任務完成率由 71% 提升至 89%。",
-                "limitation": "跨服務權限與長任務恢復仍需要額外治理。",
+                "problem": "市場缺少能量化企業實際 AI 暴險的高頻指標。",
+                "method": "以 OpenRouter 使用量建立 AI Factor，再對照股價與職能資料。",
+                "result": "樣本期內週 token 用量從 114 億增至 15.6 兆。",
+                "limitation": "資料來自單一平台，且不等同全球 AI 使用全貌。",
             },
-            "intro_story": "當一個看似簡單的查詢需要連續碰觸三個系統，真正困難的往往不是推理，而是確保每一步都可驗證。",
+            "intro_story": "這張圖不是模型參數競賽，而是付費用戶真正消耗的 token：從 2024 年起呈現持續、跨模型的指數成長。",
             "method_paragraphs": [],
             "results_paragraphs": [],
             "figures": [{
-                "path": (ASSET_DIR / "link2news-workflow-hero.png").resolve().as_uri(),
-                "caption": "圖 1：從 LINE 連結到新聞式週報與 Podcast 的合成示意。",
+                "path": (ASSET_DIR / "paper-ai-premium-figure-1.png").resolve().as_uri(),
+                "caption": "圖 1：每週 token 總用量（Borri, Liu & Tsyvinski, AI Premium, arXiv:2606.30583, CC BY 4.0）。",
             }],
-            "terms": [{"term": "可觀測性", "blurb": "讓執行狀態、錯誤與結果可被持續追蹤。"}],
-            "flaws": [{"title": "環境差異", "note": "測試服務仍比真實企業系統單純。"}],
-            "vision": "可靠的代理不是永不失敗，而是每次失敗都有清楚出口。",
+            "terms": [{"term": "AI Factor", "blurb": "從 token、金額與用戶成長建立的 AI 消費因子。"}],
+            "flaws": [{"title": "平台偏差", "note": "OpenRouter 用戶結構可能與企業內部使用不同。"}],
+            "vision": "AI 採用的下一階段，將由實際使用深度而非口號定價。",
         },
         {
             "ref": 2,
-            "headline": "小模型如何降低私有部署門檻",
-            "meta": "Link2News Demo et al. · 合成示例 · example.org/paper-2",
+            "headline": "把模糊判斷編譯成可攜式小模型",
+            "meta": "Wentao Zhang, Liliana Hotsko, Woojeong Kim et al. · arXiv:2607.02512",
             "abstract": {
-                "problem": "大型模型成本與資料邊界限制了內部流程導入。",
-                "method": "以任務路由搭配小模型，只把複雜案例交給大型模型。",
-                "result": "合成工作負載的推論成本下降 46%。",
-                "limitation": "路由器判斷錯誤時會犧牲少數複雜任務品質。",
+                "problem": "模糊函數難以寫成規則，卻不該每次都呼叫大模型。",
+                "method": "神經編譯器把自然語言規格轉成可本機執行的權重程式。",
+                "result": "0.6B 解譯器接近 32B 直接提示，推論記憶體約為 1/50。",
+                "limitation": "需先針對函數規格編譯，不適合高度動態的單次任務。",
             },
-            "intro_story": "不是每一封摘要、每一筆分類都需要最大模型，關鍵是知道何時升級。",
-            "method_paragraphs": ["系統先判斷任務風險與資訊量，再選擇適合的模型層級。"],
-            "results_paragraphs": ["大部分日常任務由小模型完成，少數高風險案例保留較高預算。"],
-            "figures": [],
+            "intro_story": "把「這封信是否緊急」寫成規則很難，但也不需每次把內容送到雲端。這篇論文把一次性編譯與長期執行分開。",
+            "method_paragraphs": [],
+            "results_paragraphs": [],
+            "figures": [{
+                "path": (ASSET_DIR / "paper-program-as-weights-figure-1.png").resolve().as_uri(),
+                "caption": "圖 1：Program-as-Weights 的雲端編譯與本機執行流程（Zhang et al., arXiv:2607.02512, CC BY 4.0）。",
+            }],
             "terms": [],
-            "flaws": [{"title": "路由偏誤", "note": "少見案例可能被錯估為簡單任務。"}],
-            "vision": "模型組合將比單一最大模型更接近實務需求。",
+            "flaws": [{"title": "規格依賴", "note": "需求改變時必須重新編譯權重程式。"}],
+            "vision": "未來的應用不只呼叫模型，也會讓模型生成可部署的小型工具。",
         },
     ]
+    for paper in featured:
+        if len(paper.get("figures", [])) != 1:
+            raise ValueError(f"featured paper {paper.get('ref')} must have exactly one figure")
+        figure_path = Path(unquote(urlparse(paper["figures"][0]["path"]).path))
+        if not figure_path.is_file():
+            raise FileNotFoundError(figure_path)
     html = template.render(
         masthead="LINK2NEWS",
         issue_no="DEMO-01",
-        issue_date="2026 年 07 月 20-26 日",
-        issue_title="可靠代理進入實務",
-        n_papers=4,
+        issue_date="2026 年 07 月 06-12 日",
+        issue_title="AI 經濟與離線智慧",
+        n_papers=2,
         n_repos=3,
         n_news=5,
         focus=focus,
         featured=featured,
         roundup={
-            "headline": "本週還值得留意的三個訊號",
-            "paragraphs": ["開源評測、私有部署與安全治理正在匯流成同一條產品路線。"],
+            "headline": "從使用量到本機執行",
+            "paragraphs": ["AI 的價值正從模型排行榜，移向真實使用深度、成本與可部署性。"],
         },
         general_terms=[{"term": "任務路由", "blurb": "依風險與成本把工作交給不同模型。"}],
         references=[
-            {"ref": i, "authors_str": "Link2News Demo", "title": f"Synthetic reference {i}",
-             "url": f"https://example.org/{i}", "citations": None, "pdf": ""}
-            for i in range(1, 5)
+            {"ref": 1, "authors_str": "Borri, Liu, Tsyvinski", "title": "AI Premium",
+             "url": "https://arxiv.org/abs/2606.30583", "citations": None, "pdf": ""},
+            {"ref": 2, "authors_str": "Zhang et al.", "title": "Program-as-Weights",
+             "url": "https://arxiv.org/abs/2607.02512", "citations": None, "pdf": ""},
         ],
         library_dir="local-library/",
         podcast_minutes=15,
