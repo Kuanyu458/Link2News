@@ -12,7 +12,7 @@ license = { file = "LICENSE" }
 authors = [{ name = "Weekly Report contributors" }]
 dependencies = [
   "Jinja2>=3.1,<4",
-  "Pillow>=11,<12",
+  "Pillow>=11,<13",
   "playwright>=1.50,<2",
   "pypdfium2>=4.30,<5",
   "PyYAML>=6,<7",
