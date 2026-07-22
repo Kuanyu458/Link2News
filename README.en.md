@@ -13,6 +13,8 @@ mobile-friendly newspaper PDF and podcast. Share sources with a LINE bot. When y
 request a report, a Mac pipeline resolves the links, creates a cited weekly
 digest and optional podcast, then returns private mobile links through LINE.
 
+![A privacy-safe synthetic Link2News report preview](docs/assets/link2news-preview.png)
+
 ## Requirements
 
 - macOS and Python 3.10–3.13
@@ -34,9 +36,9 @@ Then edit:
 - `~/.config/weekly-report/config.yaml`
 - `~/.config/weekly-report/secrets.env`
 
-Deploy the Worker with `./collector/deploy.sh`, bind its `/webhook` URL in the
-LINE console, run `./collector/get_push_id.sh`, then install the background
-runner with `./launchd/install.sh`.
+Set `line.push_to` to your `U...` user ID from LINE Developers. Deploy the
+Worker with `./collector/deploy.sh`, bind its `/webhook` URL in the LINE
+console, then install the background runner with `./launchd/install.sh`.
 
 Validate locally before sending a real request:
 
@@ -46,9 +48,10 @@ Validate locally before sending a real request:
 .venv/bin/weekly-report run --dry-run
 ```
 
-The complete guide is maintained in Traditional Chinese in [README.md](README.md).
-Integration endpoints are documented in [docs/API.md](docs/API.md), and the
-data boundary in [docs/SECURITY_AND_PRIVACY.md](docs/SECURITY_AND_PRIVACY.md).
+Architecture, deployment, CLI, operations, and troubleshooting are documented
+in [docs/TECHNICAL.md](docs/TECHNICAL.md). Integration endpoints are in
+[docs/API.md](docs/API.md), and the data boundary in
+[docs/SECURITY_AND_PRIVACY.md](docs/SECURITY_AND_PRIVACY.md).
 
 ## License
 
