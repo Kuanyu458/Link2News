@@ -27,6 +27,12 @@ class NewspaperLayoutTests(unittest.TestCase):
         self.assertIn("@media print", template)
         self.assertIn("column-span: none", template)
         self.assertIn("overflow-wrap: anywhere", template)
+        self.assertNotIn(".featured-head { break-before: page; }", template)
+        self.assertIn(".featured-head { column-span: none; break-before: column; }", template)
+
+        focus_grid = template.split(".focus-grid {", 1)[1].split("}", 1)[0]
+        self.assertIn('grid-template-areas: "lead lead" "secondary-one secondary-two"',
+                      focus_grid)
 
     def test_rerender_reuses_layout_without_external_steps(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -56,6 +62,20 @@ class NewspaperLayoutTests(unittest.TestCase):
                 patch("main.output_dir", return_value=Path(tmp)):
             with self.assertRaisesRegex(RuntimeError, "ingested.json"):
                 pipeline_main.rerender_existing({}, "2026-W28")
+
+    def test_old_layout_gets_missing_paper_figure(self):
+        layout = {"featured": [{"ref": 4, "headline": "Gemma 4", "figures": []}]}
+        ingested = {
+            "papers": [{
+                "ref": 4,
+                "figures": [{"path": "/tmp/gemma-preview.png", "caption": "論文首頁預覽"}],
+            }],
+        }
+
+        newspaper._fill_missing_featured_figures(layout, ingested)
+
+        self.assertEqual(layout["featured"][0]["figures"][0]["caption"], "論文首頁預覽")
+        self.assertTrue(layout["featured"][0]["figures"][0]["path"].startswith("file:"))
 
 
 if __name__ == "__main__":

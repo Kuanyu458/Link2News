@@ -47,6 +47,38 @@ def _figures_by_ref(ingested: dict) -> tuple[list[dict], str]:
     return figures, listing
 
 
+def _as_render_figure(figure: dict) -> dict:
+    path = str(figure["path"])
+    uri = path if path.startswith("file:") else Path(path).resolve().as_uri()
+    return {"path": uri, "caption": figure["caption"]}
+
+
+def _ensure_paper_visuals(ingested: dict) -> None:
+    """確保每篇可用 PDF 的論文都有至少一張圖。"""
+    from ingest import extract_pdf_figures
+
+    for paper in ingested.get("papers", []):
+        if paper.get("figures") or not paper.get("pdf_path"):
+            continue
+        pdf_path = Path(paper["pdf_path"])
+        if pdf_path.is_file():
+            paper["figures"] = extract_pdf_figures(pdf_path, pdf_path.parent)
+
+
+def _fill_missing_featured_figures(layout: dict, ingested: dict) -> None:
+    """替舊 layout.json 中的空白文獻專欄補上同篇論文的圖。"""
+    figures, _ = _figures_by_ref(ingested)
+    first_by_ref = {}
+    for figure in figures:
+        first_by_ref.setdefault(figure.get("ref"), figure)
+    for paper in layout.get("featured", []):
+        if paper.get("figures"):
+            continue
+        figure = first_by_ref.get(paper.get("ref"))
+        if figure:
+            paper["figures"] = [_as_render_figure(figure)]
+
+
 def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -> dict:
     figures, figure_list = _figures_by_ref(ingested)
     featured_refs = [r["ref"] for r in citations["references"] if r["featured"]]
@@ -140,9 +172,6 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
 
     fig_index = {f["id"]: f for f in figures}
 
-    def as_render_fig(f):
-        return {"path": Path(f["path"]).resolve().as_uri(), "caption": f["caption"]}
-
     for pp in layout.get("featured", []):
         pp["figures"] = []
         for fid in (pp.pop("figure_ids", None) or []):
@@ -152,10 +181,10 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
                 continue
             f = fig_index.get(fid)
             if f and f["ref"] == pp.get("ref"):
-                pp["figures"].append(as_render_fig(f))
+                pp["figures"].append(_as_render_figure(f))
         if not pp["figures"]:
             # 保底：主編沒選到有效圖時，用該文獻的第一張圖（通常是 Figure 1 總覽圖）
-            pp["figures"] = [as_render_fig(f) for f in figures
+            pp["figures"] = [_as_render_figure(f) for f in figures
                              if f["ref"] == pp.get("ref")][:1]
 
     # 術語分流：屬於某篇重點文獻的 → 排入該篇旁的「名詞解釋」框；其餘 → 新詞櫥窗
@@ -179,8 +208,10 @@ def render_newspaper(reports: dict, ingested: dict, citations: dict, cfg: dict,
                      out_dir: Path, wk: str, podcast_path: Path | None,
                      layout_override: dict | None = None) -> Path:
     """產生 HTML/PDF；layout_override 可用來重排已完成的舊版版面資料。"""
+    _ensure_paper_visuals(ingested)
     layout = layout_override if layout_override is not None else _editor_payload(
         reports, ingested, citations, cfg)
+    _fill_missing_featured_figures(layout, ingested)
     (out_dir / "layout.json").write_text(
         json.dumps(layout, ensure_ascii=False, indent=2), encoding="utf-8")
 

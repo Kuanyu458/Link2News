@@ -94,13 +94,13 @@
 
   .focus-grid {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(250px, 1fr);
-    grid-template-areas: "lead secondary-one" "lead secondary-two";
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "lead lead" "secondary-one secondary-two";
     column-gap: 24px;
   }
   .focus { min-width: 0; padding: 4px 0 14px; }
-  .focus.lead { grid-area: lead; padding-right: 24px; border-right: 1px solid var(--rule); }
-  .focus.secondary-one { grid-area: secondary-one; border-bottom: 1px solid var(--rule); }
+  .focus.lead { grid-area: lead; border-bottom: 1px solid var(--rule); }
+  .focus.secondary-one { grid-area: secondary-one; padding: 15px 24px 4px 0; border-right: 1px solid var(--rule); }
   .focus.secondary-two { grid-area: secondary-two; padding-top: 15px; }
   .kicker {
     display: block;
@@ -257,11 +257,7 @@
 
   @media screen and (max-width: 1023px) {
     main { width: min(100% - 28px, 920px); padding-inline: 24px; }
-    .focus-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "lead lead" "secondary-one secondary-two"; }
-    .focus.lead { padding-right: 0; border-right: 0; border-bottom: 1px solid var(--rule); }
-    .focus.secondary-one { padding-right: 20px; border-right: 1px solid var(--rule); border-bottom: 0; }
-    .focus.secondary-two { padding-left: 20px; padding-top: 4px; }
-    .focus.lead .body-cols { columns: 2; }
+    .focus.secondary-one { padding-right: 20px; }
   }
 
   @media screen and (max-width: 739px) {
@@ -320,7 +316,7 @@
       font-size: 8.2pt;
       break-after: avoid;
     }
-    .featured-head { break-before: page; }
+    .featured-head { column-span: none; break-before: column; }
     .focus-grid, .featured-grid, .closing-grid { display: block; }
     .focus, .focus.lead, .focus.secondary-one, .focus.secondary-two,
     article.paper, article.paper:nth-child(odd), .roundup {
@@ -330,6 +326,21 @@
       break-inside: auto;
     }
     .focus + .focus, article.paper { padding-top: 2.5mm; border-top: .35pt solid var(--rule); }
+    .focus-grid {
+      column-span: all;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas: "lead lead" "secondary-one secondary-two";
+      column-gap: 7mm;
+    }
+    .focus.lead { grid-area: lead; padding-bottom: 2.5mm; border-bottom: .35pt solid var(--rule); }
+    .focus.secondary-one {
+      grid-area: secondary-one;
+      padding: 2.5mm 3.5mm 0 0;
+      border-top: 0;
+      border-right: .35pt solid var(--rule);
+    }
+    .focus.secondary-two { grid-area: secondary-two; padding-top: 2.5mm; border-top: 0; }
     .focus.lead h2, .focus:not(.lead) h2 { font-size: 15pt; line-height: 1.18; }
     .focus .body-cols, .focus.lead .body-cols, .focus:not(.lead) .body-cols,
     .paper .body-cols, .roundup .body-cols { columns: 1; font-size: 8.7pt; line-height: 1.5; }
@@ -355,6 +366,7 @@
     .references h3 { column-span: none; font-size: 7.5pt; }
     .references li { margin-bottom: 1.5mm; font-size: 6.6pt; line-height: 1.35; }
     .references .lib, .colophon { font-size: 6pt; }
+    .references .lib { display: none; }
     .colophon { column-span: none; }
     a { color: inherit; text-decoration: none; }
   }
