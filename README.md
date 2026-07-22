@@ -1,6 +1,6 @@
 # Link2News
 
-把一週散落在 LINE 裡的論文、GitHub repository、新聞與社群連結，自動整理成可在手機閱讀的新聞式 PDF 與 Podcast。
+把一週散落在 LINE 裡的論文、GitHub repository、新聞與社群連結，自動整理成可在手機、平板、網頁、甚至紙本印出閱讀的新聞式 PDF 與 Podcast。
 
 [![CI](https://github.com/Kuanyu458/Link2News/actions/workflows/ci.yml/badge.svg)](https://github.com/Kuanyu458/Link2News/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -51,7 +51,7 @@ cd Link2News
 
 ![Link2News LINE Rich Menu](scripts/richmenu.png)
 
-手動執行也很簡單：
+手動執行：
 
 ```bash
 # 完整流程：收集 → 生成 → 發布
@@ -66,7 +66,7 @@ cd Link2News
 
 ## 目前範圍
 
-Link2News 現在是 `v0.1.0b1` 公開測試版，設計邊界是：
+Link2News 目前為 `v0.1.0b1` 公開測試版，設計邊界為：
 
 - macOS 單機自架。
 - 一個受信任的 LINE 使用者或聊天室來源。
