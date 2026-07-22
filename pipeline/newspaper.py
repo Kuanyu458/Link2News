@@ -119,6 +119,7 @@ def _fill_missing_featured_figures(layout: dict, ingested: dict) -> None:
 def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -> dict:
     figures, figure_list = _figures_by_ref(ingested)
     featured_refs = [r["ref"] for r in citations["references"] if r["featured"]]
+    reader_context = str(cfg.get("project_context") or "").strip() or "技術與研究工作者"
     ref_list = "\n".join(
         f"[{r['ref']}]{'★重點' if r['featured'] else ''} {r['title']}"
         f"（作者：{', '.join(r['authors'][:3])}；引用數：{r['citations'] if r['citations'] is not None else '未知'}）"
@@ -127,7 +128,7 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
     prompt = f"""你是一份台灣傳統紙本報紙風格研究週刊的主編，撰稿風格是資深科技產業線記者
 （如經濟日報科技版、數位時代的產業報導）：新聞導言破題、消息來源式敘述、
 產業影響分析、文字精煉有現場感。
-讀者背景：{cfg.get('project_context', 'AI 工程師兼 AI 醫材工程師')}。
+讀者背景：{reader_context}。
 版面為 A4 直向、由左至右橫書的學術論文式雙欄排版；HTML 在手機上會改為單欄。
 請以適合橫向閱讀的短標題、短段落與清楚的小節層級編排本期內容，輸出 JSON。
 
@@ -139,7 +140,7 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
 - 標題全中文、簡短有力（主標 10-18 字內）
 
 ## 第 1 部分 focus：本週焦點（正好 3 個主題）
-綜觀本週全部素材（論文、GitHub 專案、新聞），歸納出讀者「身為 AI 工程師、AI 醫材工程師最需要關注」的 3 個主題。每個主題：
+綜觀本週全部素材（論文、GitHub 專案、新聞），依據上述讀者背景歸納最需要關注的 3 個主題。每個主題：
 - kicker：8 字內的眼題（如「AGENT 記憶革命」）
 - headline：有故事性、引人入勝的標題（不是論文標題直譯）
 - paragraphs：2-3 段（每段 80-120 字）敘事開場→技術意涵→對讀者工作的影響

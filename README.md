@@ -11,17 +11,18 @@
 
 ## 成果展示
 
-### 新聞式週報
+### LINE 交付
 
-[![Link2News 產出的 2026-W28 新聞式週報示例](docs/assets/weekly_2026-W28-preview.png)](docs/assets/weekly_2026-W28.pdf)
-
-[📄 開啟／下載完整 `weekly_2026-W28.pdf` Demo（5 頁）](docs/assets/weekly_2026-W28.pdf)
+<p align="center">
+  <img src="docs/assets/line-weekly-report-demo.jpg" alt="Link2News 在 LINE 中交付週報 PDF、Podcast 與 Rich Menu 操作入口" width="420">
+</p>
+<p align="center"><sub>完成卡提供 PDF 與 Podcast，Rich Menu 可重新生成、切換模型或查看待處理清單。</sub></p>
 
 ### Podcast Demo
 
 [🎧 播放／下載 Podcast 音檔範例（約 30 秒）](docs/assets/link2news-podcast-demo.mp3)
 
-> PDF Demo 使用公開文獻並在內文保留引用；各原文圖表適用其個別授權，詳見 [第三方聲明](THIRD_PARTY_NOTICES.md)。Podcast Demo 使用合成文本與系統語音。repository 不包含使用者訊息、私有報告或憑證。
+> Podcast Demo 使用合成文本與系統語音。repository 不納管生成週報、下載論文、使用者訊息、私有報告或憑證。
 
 本週焦點、重點文獻與學術動向每篇文章都會附上對應原文圖表，圖說保留來源資訊。
 
@@ -39,11 +40,6 @@
 2. 從 Rich Menu 選擇生成週報、重新生成、指定模型或查看待處理清單。
 3. Mac 背景服務整理來源、生成新聞式 PDF，並視設定產生 Podcast。
 4. 完成後直接從 LINE 卡片閱讀 PDF、下載 Podcast，或播放收到的語音訊息。
-
-<p align="center">
-  <img src="docs/assets/line-weekly-report-demo.jpg" alt="Link2News 在 LINE 中交付週報 PDF、Podcast 與 Rich Menu 操作入口" width="420">
-</p>
-<p align="center"><sub>LINE 交付示例：週報完成卡提供 PDF 與 Podcast，Rich Menu 可重新生成、切換模型或查看待處理清單。</sub></p>
 
 也可以從終端機手動執行：
 
@@ -110,14 +106,10 @@ npm test
 ./scripts/check_public_tree.sh
 ```
 
-README 週報截圖與 Podcast Demo 可使用示範資料重建；完整 PDF Demo 取自本機 `2026-W28` 重排結果：
+Podcast Demo 可使用合成資料重建：
 
 ```bash
-.venv/bin/python scripts/generate_readme_preview.py
 ./scripts/generate_podcast_demo.sh
-.venv/bin/weekly-report rerender --week 2026-W28
-cp output/2026-W28/weekly_2026-W28.pdf docs/assets/weekly_2026-W28.pdf
-pdftoppm -f 1 -singlefile -png -r 150 docs/assets/weekly_2026-W28.pdf docs/assets/weekly_2026-W28-preview
 ```
 
 ## 授權

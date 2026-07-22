@@ -96,6 +96,23 @@ class NewspaperLayoutTests(unittest.TestCase):
         self.assertEqual(layout["roundup"]["figures"][0]["caption"], "AI Premium 原文圖")
         self.assertTrue(layout["featured"][0]["figures"][0]["path"].startswith("file:"))
 
+    def test_editor_prompt_uses_configured_or_generic_reader_context(self):
+        reports = {"terms": "", "papers": "", "github": ""}
+        ingested = {"papers": []}
+        citations = {"references": []}
+        empty_layout = {"focus": [], "featured": [], "roundup": {}, "terms": []}
+
+        with patch("newspaper.ask_json", return_value=empty_layout) as ask:
+            newspaper._editor_payload(reports, ingested, citations, {})
+        default_prompt = ask.call_args.args[0]
+        self.assertIn("讀者背景：技術與研究工作者", default_prompt)
+        self.assertNotIn("AI 醫材工程師", default_prompt)
+
+        with patch("newspaper.ask_json", return_value=empty_layout) as ask:
+            newspaper._editor_payload(
+                reports, ingested, citations, {"project_context": "醫學影像研究者"})
+        self.assertIn("讀者背景：醫學影像研究者", ask.call_args.args[0])
+
 
 if __name__ == "__main__":
     unittest.main()

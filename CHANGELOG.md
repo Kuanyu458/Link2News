@@ -10,3 +10,5 @@ Versioning after `1.0`; public-beta interfaces may change with migration notes.
 - Replaced PyMuPDF with permissively licensed PDFium bindings.
 - Added LINE source allowlisting, webhook deduplication, API v1, and leased job claims.
 - Added reproducible bootstrap, runtime environment installation, CI, and community files.
+- Consolidated architecture, deployment, and editorial guidance into the canonical technical documentation.
+- Removed generated report binaries and third-party paper figures from the public repository.
