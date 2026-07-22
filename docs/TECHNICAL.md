@@ -197,6 +197,17 @@ output/YYYY-Www/
 └── assets/
 ```
 
+## README 展示素材
+
+公開 repository 的週報截圖與 Podcast Demo 都使用合成內容，可重複產生：
+
+```bash
+.venv/bin/python scripts/generate_readme_preview.py
+./scripts/generate_podcast_demo.sh
+```
+
+Podcast Demo 需要 macOS `say` 與 `ffmpeg`；產出的 MP3 不含真實連結、使用者訊息或私有週報內容。
+
 ## 監控
 
 ```bash

@@ -49,9 +49,12 @@ def main() -> None:
                 "limitation": "跨服務權限與長任務恢復仍需要額外治理。",
             },
             "intro_story": "當一個看似簡單的查詢需要連續碰觸三個系統，真正困難的往往不是推理，而是確保每一步都可驗證。",
-            "method_paragraphs": ["團隊把每次工具呼叫拆成可檢查的輸入、執行與回傳階段。"],
-            "results_paragraphs": ["改善主要來自失敗後的精準重試，而不是增加更多提示文字。"],
-            "figures": [],
+            "method_paragraphs": [],
+            "results_paragraphs": [],
+            "figures": [{
+                "path": (ASSET_DIR / "link2news-workflow-hero.png").resolve().as_uri(),
+                "caption": "圖 1：從 LINE 連結到新聞式週報與 Podcast 的合成示意。",
+            }],
             "terms": [{"term": "可觀測性", "blurb": "讓執行狀態、錯誤與結果可被持續追蹤。"}],
             "flaws": [{"title": "環境差異", "note": "測試服務仍比真實企業系統單純。"}],
             "vision": "可靠的代理不是永不失敗，而是每次失敗都有清楚出口。",
@@ -103,7 +106,7 @@ def main() -> None:
     HTML_PATH.write_text(html, encoding="utf-8")
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 1440, "height": 900}, device_scale_factor=1)
+        page = browser.new_page(viewport={"width": 1440, "height": 1200}, device_scale_factor=1)
         page.goto(HTML_PATH.resolve().as_uri())
         page.screenshot(path=str(PNG_PATH), full_page=False)
         browser.close()
