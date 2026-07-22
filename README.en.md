@@ -17,7 +17,7 @@ digest and optional podcast, then returns private mobile links through LINE.
 
 ### Newspaper-style report
 
-[![A preview of the Link2News 2026-W28 report using public papers](docs/assets/link2news-preview.png)](docs/assets/weekly_2026-W28.pdf)
+[![A preview of the Link2News 2026-W28 report using public papers](docs/assets/weekly_2026-W28-preview.png)](docs/assets/weekly_2026-W28.pdf)
 
 [📄 Open or download the complete five-page `weekly_2026-W28.pdf` demo](docs/assets/weekly_2026-W28.pdf)
 
@@ -33,7 +33,37 @@ digest and optional podcast, then returns private mobile links through LINE.
 Every focus story, featured paper, and academic roundup includes a figure or
 table from the corresponding source, with its attribution preserved.
 
-## Requirements
+## What it does
+
+- Collects papers, GitHub repositories, news, and social links from LINE.
+- Produces a cited Traditional Chinese newspaper-style HTML and A4 PDF.
+- Optionally generates a podcast and returns private mobile links through LINE.
+- Exposes authenticated HTTP endpoints for bookmark, bot, and knowledge-tool integrations.
+
+## How to use
+
+1. Share source URLs with the authorized LINE chat during the week.
+2. Use the Rich Menu to generate or regenerate a report, select a model, or inspect pending items.
+3. Let the Mac background runner generate the PDF and optional podcast.
+4. Open the PDF, download the podcast, or play the audio directly from LINE.
+
+<p align="center">
+  <img src="docs/assets/line-weekly-report-demo.jpg" alt="Link2News delivering a report PDF, podcast, and Rich Menu controls in LINE" width="420">
+</p>
+<p align="center"><sub>LINE delivery example with direct PDF and podcast actions plus Rich Menu controls.</sub></p>
+
+## Usage limits
+
+- Public beta for a self-hosted macOS machine and one trusted LINE user or chat.
+- Not a ready-made multi-tenant SaaS; secure and rate-limit the Worker API before exposing it.
+- Direct mobile artifact links require Cloudflare R2; local generation still works without it.
+- You provide and pay for the LINE, Cloudflare, and LLM accounts.
+- Review generated summaries, citations, and audio before external publication or decision use.
+- Source text and figures retain their respective licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+
+## Install
+
+### Requirements
 
 - macOS and Python 3.10–3.13
 - Node.js 20+ and a Cloudflare account with Workers, D1, and R2
@@ -41,7 +71,7 @@ table from the corresponding source, with its attribution preserved.
 - Claude CLI, Codex CLI, or an Anthropic API key
 - Optional `ffmpeg` for podcast processing
 
-## Quick start
+### Quick start
 
 ```bash
 git clone https://github.com/Kuanyu458/Link2News.git
