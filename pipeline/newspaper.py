@@ -7,6 +7,7 @@ import datetime as dt
 import html
 import json
 import logging
+import re
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -65,18 +66,54 @@ def _ensure_paper_visuals(ingested: dict) -> None:
             paper["figures"] = extract_pdf_figures(pdf_path, pdf_path.parent)
 
 
-def _fill_missing_featured_figures(layout: dict, ingested: dict) -> None:
-    """替舊 layout.json 中的空白文獻專欄補上同篇論文的圖。"""
-    figures, _ = _figures_by_ref(ingested)
-    first_by_ref = {}
-    for figure in figures:
-        first_by_ref.setdefault(figure.get("ref"), figure)
-    for paper in layout.get("featured", []):
-        if paper.get("figures"):
+def _article_refs(article: dict) -> list[int]:
+    refs = []
+    for value in article.get("refs", []) or []:
+        try:
+            refs.append(int(value))
+        except (TypeError, ValueError):
             continue
-        figure = first_by_ref.get(paper.get("ref"))
-        if figure:
-            paper["figures"] = [_as_render_figure(figure)]
+    if refs:
+        return refs
+    text = " ".join([article.get("headline", ""), *(article.get("paragraphs", []) or [])])
+    return list(dict.fromkeys(
+        int(value) for value in re.findall(r"[〔\[]\s*(\d+)\s*[〕\]]", text)
+    ))
+
+
+def _fill_missing_featured_figures(layout: dict, ingested: dict) -> None:
+    """確保舊 layout.json 的焦點、文獻專欄與學術動向都有原文圖。"""
+    figures, _ = _figures_by_ref(ingested)
+    figures_by_ref = {}
+    for figure in figures:
+        figures_by_ref.setdefault(figure.get("ref"), []).append(figure)
+
+    def attach(article: dict, refs: list[int], prefer_alternate: bool = False) -> None:
+        existing = article.get("figures") or []
+        if existing and not (
+            prefer_alternate
+            and str(existing[0].get("caption", "")).lower().startswith("table")
+        ):
+            return
+        for ref in refs:
+            candidates = figures_by_ref.get(ref, [])
+            if candidates:
+                selected = candidates[0]
+                if prefer_alternate and len(candidates) > 1:
+                    selected = next(
+                        (candidate for candidate in candidates[1:]
+                         if str(candidate.get("caption", "")).lower().startswith("figure")),
+                        candidates[1],
+                    )
+                article["figures"] = [_as_render_figure(selected)]
+                return
+
+    for focus in layout.get("focus", []):
+        attach(focus, _article_refs(focus), prefer_alternate=True)
+    for paper in layout.get("featured", []):
+        attach(paper, [paper.get("ref")])
+    roundup = layout.get("roundup", {})
+    attach(roundup, _article_refs(roundup))
 
 
 def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -> dict:
@@ -107,6 +144,7 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
 - headline：有故事性、引人入勝的標題（不是論文標題直譯）
 - paragraphs：2-3 段（每段 80-120 字）敘事開場→技術意涵→對讀者工作的影響
 - refs：這個主題導引到的文獻編號陣列（必須用下方文獻編號）
+- figure_ids：選正好 1 張屬於 refs 中某篇文獻的原文圖，優先與重點文獻專欄使用不同圖
 
 ## 第 2 部分 featured：重點學術文獻（正好 4 篇，用標記★重點的文獻，依編號序）
 每篇採「輕學術期刊」結構，目標是讓讀者 3-5 分鐘抓到問題/結論/缺陷：
@@ -131,6 +169,8 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
 ## 第 3 部分 roundup：其他學術文獻總覽（1 篇短文）
 - headline：總覽標題
 - paragraphs：2-3 段（共 250-350 字）快速帶過未入選重點的文獻與本週學術動向，每提到一篇附 [編號]
+- refs：本文主要使用的文獻編號陣列
+- figure_ids：選正好 1 張屬於 refs 的原文圖
 
 ## 第 4 部分 terms：本週關鍵術語（正好 5 個）
 用名詞報告的 5 個術語，各壓縮成 50-80 字科普：意義＋由來/方法一句話。
@@ -140,17 +180,19 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
 
 規格：內文引用一律用〔n〕編號；記者筆法——導言破題、數字具體、
 缺陷直說不粉飾；正文不用條列式（flaws 清單除外）。
+每一篇 focus、featured 與 roundup 都必須有正好 1 張對應原文圖，
+不可使用產品情境圖、裝飾圖或與內文無關的圖。
 另輸出 issue_title：本期 10 字內的一句話主題（會印在每頁報眉）。
 
 輸出 JSON schema：
 {{"issue_title": str,
- "focus": [{{"kicker": str, "headline": str, "paragraphs": [str], "refs": [int]}} ×3],
+ "focus": [{{"kicker": str, "headline": str, "paragraphs": [str], "refs": [int], "figure_ids": [int]}} ×3],
  "featured": [{{"ref": int, "headline": str, "meta": str,
                 "abstract": {{"problem": str, "method": str, "result": str, "limitation": str}},
                 "intro_story": str, "method_paragraphs": [str], "results_paragraphs": [str],
                 "flaws": [{{"title": str, "note": str}}], "vision": str,
                 "figure_ids": [int]}} ×4],
- "roundup": {{"headline": str, "paragraphs": [str]}},
+ "roundup": {{"headline": str, "paragraphs": [str], "refs": [int], "figure_ids": [int]}},
  "terms": [{{"term": str, "blurb": str, "ref": int|null}} ×5]}}
 
 === 文獻編號表（★重點=第 2 部分的 4 篇：{featured_refs}）===
@@ -172,20 +214,24 @@ def _editor_payload(reports: dict, ingested: dict, citations: dict, cfg: dict) -
 
     fig_index = {f["id"]: f for f in figures}
 
-    for pp in layout.get("featured", []):
-        pp["figures"] = []
-        for fid in (pp.pop("figure_ids", None) or []):
+    def attach_selected(article: dict, allowed_refs: list[int]) -> None:
+        article["figures"] = []
+        for fid in (article.pop("figure_ids", None) or []):
             try:
                 fid = int(fid)
             except (TypeError, ValueError):
                 continue
             f = fig_index.get(fid)
-            if f and f["ref"] == pp.get("ref"):
-                pp["figures"].append(_as_render_figure(f))
-        if not pp["figures"]:
-            # 保底：主編沒選到有效圖時，用該文獻的第一張圖（通常是 Figure 1 總覽圖）
-            pp["figures"] = [_as_render_figure(f) for f in figures
-                             if f["ref"] == pp.get("ref")][:1]
+            if f and f["ref"] in allowed_refs:
+                article["figures"].append(_as_render_figure(f))
+                break
+
+    for focus in layout.get("focus", []):
+        attach_selected(focus, _article_refs(focus))
+    for paper in layout.get("featured", []):
+        attach_selected(paper, [paper.get("ref")])
+    roundup = layout.get("roundup", {})
+    attach_selected(roundup, _article_refs(roundup))
 
     # 術語分流：屬於某篇重點文獻的 → 排入該篇旁的「名詞解釋」框；其餘 → 新詞櫥窗
     featured_by_ref = {pp.get("ref"): pp for pp in layout.get("featured", [])}

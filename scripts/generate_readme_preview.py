@@ -24,18 +24,30 @@ def main() -> None:
                 "對開發團隊而言，使用深度可能比「有沒有使用 AI」更能解釋組織差異。",
             ],
             "refs": [1],
+            "figures": [{
+                "path": (ASSET_DIR / "paper-ai-premium-figure-1.png").resolve().as_uri(),
+                "caption": "原文圖 1：每週 token 總用量（AI Premium, arXiv:2606.30583, CC BY 4.0）。",
+            }],
         },
         {
             "kicker": "離線智慧",
             "headline": "把模糊需求編譯成可重複使用的小模型",
             "paragraphs": ["Program-as-Weights 讓雲端模型只需編譯一次，後續即可在本機以輕量解譯器離線執行。"],
             "refs": [2],
+            "figures": [{
+                "path": (ASSET_DIR / "paper-program-as-weights-figure-2.png").resolve().as_uri(),
+                "caption": "原文圖 2：PAW 的 Text-to-LoRA 編譯器與解譯器（Zhang et al., arXiv:2607.02512, CC BY 4.0）。",
+            }],
         },
         {
             "kicker": "實務提醒",
             "headline": "先區分一次性編譯與長期推論成本",
             "paragraphs": ["當同一個判斷函數會重複執行，把能力編譯成本機產物，才能同時改善延遲、成本與隱私。"],
             "refs": [2],
+            "figures": [{
+                "path": (ASSET_DIR / "paper-program-as-weights-figure-3.png").resolve().as_uri(),
+                "caption": "原文圖 3：FuzzyBench-10M 七大任務家族分布（Zhang et al., arXiv:2607.02512, CC BY 4.0）。",
+            }],
         },
     ]
     featured = [
@@ -82,10 +94,19 @@ def main() -> None:
             "vision": "未來的應用不只呼叫模型，也會讓模型生成可部署的小型工具。",
         },
     ]
-    for paper in featured:
-        if len(paper.get("figures", [])) != 1:
-            raise ValueError(f"featured paper {paper.get('ref')} must have exactly one figure")
-        figure_path = Path(unquote(urlparse(paper["figures"][0]["path"]).path))
+    roundup = {
+        "headline": "從使用量到本機執行",
+        "paragraphs": ["AI 的價值正從模型排行榜，移向真實使用深度、成本與可部署性。"],
+        "refs": [1],
+        "figures": [{
+            "path": (ASSET_DIR / "paper-ai-premium-table-2.png").resolve().as_uri(),
+            "caption": "原文表 2：美國公司 AI Beta 五分位投資組合特徵（Borri et al., arXiv:2606.30583, CC BY 4.0）。",
+        }],
+    }
+    for article in [*focus, *featured, roundup]:
+        if len(article.get("figures", [])) != 1:
+            raise ValueError(f"article {article.get('headline')} must have exactly one figure")
+        figure_path = Path(unquote(urlparse(article["figures"][0]["path"]).path))
         if not figure_path.is_file():
             raise FileNotFoundError(figure_path)
     html = template.render(
@@ -98,10 +119,7 @@ def main() -> None:
         n_news=5,
         focus=focus,
         featured=featured,
-        roundup={
-            "headline": "從使用量到本機執行",
-            "paragraphs": ["AI 的價值正從模型排行榜，移向真實使用深度、成本與可部署性。"],
-        },
+        roundup=roundup,
         general_terms=[{"term": "任務路由", "blurb": "依風險與成本把工作交給不同模型。"}],
         references=[
             {"ref": 1, "authors_str": "Borri, Liu, Tsyvinski", "title": "AI Premium",

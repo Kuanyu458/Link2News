@@ -27,6 +27,9 @@ digest and optional podcast, then returns private mobile links through LINE.
 > podcast demo uses synthetic text and system-generated speech. The repository
 > contains no user messages, private reports, or credentials.
 
+Every focus story, featured paper, and academic roundup includes a figure or
+table from the corresponding source, with its attribution preserved.
+
 ## Requirements
 
 - macOS and Python 3.10–3.13

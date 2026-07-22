@@ -28,7 +28,11 @@ class NewspaperLayoutTests(unittest.TestCase):
         self.assertIn("column-span: none", template)
         self.assertIn("overflow-wrap: anywhere", template)
         self.assertNotIn(".featured-head { break-before: page; }", template)
-        self.assertIn(".featured-head { column-span: none; break-before: column; }", template)
+        self.assertIn(".featured-head { column-span: none; }", template)
+        self.assertIn(".closing-head { break-before: auto; }", template)
+        self.assertIn(".roundup h3.headline { break-inside: avoid; break-after: avoid; }", template)
+        self.assertIn('class="focus-figure"', template)
+        self.assertIn('class="roundup-figure"', template)
 
         focus_grid = template.split(".focus-grid {", 1)[1].split("}", 1)[0]
         self.assertIn('grid-template-areas: "lead lead" "secondary-one secondary-two"',
@@ -63,18 +67,33 @@ class NewspaperLayoutTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "ingested.json"):
                 pipeline_main.rerender_existing({}, "2026-W28")
 
-    def test_old_layout_gets_missing_paper_figure(self):
-        layout = {"featured": [{"ref": 4, "headline": "Gemma 4", "figures": []}]}
+    def test_old_layout_gets_figures_for_every_article_type(self):
+        layout = {
+            "focus": [{"headline": "焦點", "refs": [4]}],
+            "featured": [{"ref": 4, "headline": "Gemma 4", "figures": []}],
+            "roundup": {"headline": "學術動向", "paragraphs": ["另一篇文獻〔5〕"]},
+        }
         ingested = {
-            "papers": [{
-                "ref": 4,
-                "figures": [{"path": "/tmp/gemma-preview.png", "caption": "論文首頁預覽"}],
-            }],
+            "papers": [
+                {
+                    "ref": 4,
+                    "figures": [
+                        {"path": "/tmp/gemma-figure.png", "caption": "Gemma 原文圖"},
+                        {"path": "/tmp/gemma-alternate.png", "caption": "Gemma 原文圖 2"},
+                    ],
+                },
+                {
+                    "ref": 5,
+                    "figures": [{"path": "/tmp/ai-premium.png", "caption": "AI Premium 原文圖"}],
+                },
+            ],
         }
 
         newspaper._fill_missing_featured_figures(layout, ingested)
 
-        self.assertEqual(layout["featured"][0]["figures"][0]["caption"], "論文首頁預覽")
+        self.assertEqual(layout["focus"][0]["figures"][0]["caption"], "Gemma 原文圖 2")
+        self.assertEqual(layout["featured"][0]["figures"][0]["caption"], "Gemma 原文圖")
+        self.assertEqual(layout["roundup"]["figures"][0]["caption"], "AI Premium 原文圖")
         self.assertTrue(layout["featured"][0]["figures"][0]["path"].startswith("file:"))
 
 
