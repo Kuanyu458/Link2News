@@ -17,15 +17,18 @@ digest and optional podcast, then returns private mobile links through LINE.
 
 ### Newspaper-style report
 
-![A privacy-safe Link2News report preview using public papers](docs/assets/link2news-preview.png)
+[![A preview of the Link2News 2026-W28 report using public papers](docs/assets/link2news-preview.png)](docs/assets/weekly_2026-W28.pdf)
+
+[📄 Open or download the complete five-page `weekly_2026-W28.pdf` demo](docs/assets/weekly_2026-W28.pdf)
 
 ### Podcast demo
 
 [🎧 Play or download the ~30-second podcast demo](docs/assets/link2news-podcast-demo.mp3)
 
-> The report example uses public papers and attributed CC BY 4.0 figures. The
-> podcast demo uses synthetic text and system-generated speech. The repository
-> contains no user messages, private reports, or credentials.
+> The PDF demo cites public papers and preserves source references. Original
+> figures retain their respective licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+> The podcast demo uses synthetic text and system-generated speech. The
+> repository contains no user messages, private reports, or credentials.
 
 Every focus story, featured paper, and academic roundup includes a figure or
 table from the corresponding source, with its attribution preserved.
