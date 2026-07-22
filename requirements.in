@@ -6,3 +6,6 @@ PyYAML>=6,<7
 requests>=2.32,<3
 trafilatura>=2.1,<3
 edge-tts>=7.2,<8
+# aiohttp only declares this dependency on Python < 3.11. Keep it explicit so
+# a lock compiled on a newer Python still remains installable on Python 3.10.
+async-timeout>=4,<6; python_version < "3.11"
