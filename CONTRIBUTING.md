@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for improving LINE AI Weekly Report. This is a macOS-first, single-user
+Thanks for improving Link2News. This is a macOS-first, single-user
 self-hosted project. Keep changes inside that boundary unless an issue has
 explicitly accepted a larger design.
 

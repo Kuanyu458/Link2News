@@ -1,9 +1,15 @@
-# LINE AI Weekly Report
+# Link2News
 
-> Public beta (`v0.1`). A single-user, self-hosted macOS tool; not a hosted
-> multi-tenant service.
+[![CI](https://github.com/Kuanyu458/Link2News/actions/workflows/ci.yml/badge.svg)](https://github.com/Kuanyu458/Link2News/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.10--3.13-blue)
+![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey)
 
-Share papers, repositories, news, and social posts with a LINE bot. When you
+> Public beta (`v0.1.0b1`). A single-user, single-trusted-source, self-hosted
+> macOS tool; not a ready-made multi-tenant service.
+
+Turn a week of papers, GitHub repositories, news, and social links into a
+mobile-friendly newspaper PDF and podcast. Share sources with a LINE bot. When you
 request a report, a Mac pipeline resolves the links, creates a cited weekly
 digest and optional podcast, then returns private mobile links through LINE.
 
@@ -18,8 +24,8 @@ digest and optional podcast, then returns private mobile links through LINE.
 ## Quick start
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
-cd line-ai-weekly-report
+git clone https://github.com/Kuanyu458/Link2News.git
+cd Link2News
 ./scripts/bootstrap.sh
 ```
 

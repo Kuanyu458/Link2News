@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "line-ai-weekly-report"
 version = "0.1.0b1"
-description = "A self-hosted LINE-to-PDF-and-podcast weekly digest for macOS"
+description = "Link2News: a self-hosted LINE-to-newspaper-and-podcast pipeline for macOS"
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
 license = { file = "LICENSE" }

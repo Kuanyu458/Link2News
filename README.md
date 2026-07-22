@@ -1,10 +1,32 @@
-# LINE AI 週報生成系統
+# Link2News
 
 [English](README.en.md) · [API 文件](docs/API.md) · [安全與隱私](docs/SECURITY_AND_PRIVACY.md) · [貢獻指南](CONTRIBUTING.md)
 
-> **公開測試版（v0.1.0b1）**：目前支援 macOS 單機自架，並需要使用者自己的 LINE、Cloudflare 與 LLM 帳號。倉庫不包含任何實際訊息、報告、文獻、token、D1/R2 ID 或個人設定；請由範本建立本機設定。
+[![CI](https://github.com/Kuanyu458/Link2News/actions/workflows/ci.yml/badge.svg)](https://github.com/Kuanyu458/Link2News/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.10--3.13-blue)
+![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey)
 
-這是一套以 LINE 作為操作入口、Cloudflare 作為佇列與檔案中繼、Mac 作為生成主機的個人週報系統。使用者平日只要把論文、GitHub、新聞或社群貼文分享到 LINE；需要週報時按下 Rich Menu，Mac 會自動收集、解析、撰寫、排版並產生 Podcast，完成後把可在手機直接閱讀的 PDF 與音訊送回 LINE。
+把一週散落在 LINE 裡的論文、GitHub repository、新聞與社群連結，自動整理成可在手機閱讀的新聞式 PDF 與 Podcast。
+
+Link2News 是一套自架式 AI 週報系統：LINE 負責收件與操作、Cloudflare Worker／D1／R2 負責佇列與安全交付，登入中的 Mac 則完成內容解析、LLM 撰寫、排版與語音生成。
+
+> **公開測試版（v0.1.0b1）**：目前支援 macOS 單機、單一信任來源自架，並需要使用者自己的 LINE、Cloudflare 與 LLM 帳號。不建議直接作為多人 SaaS 使用。倉庫不包含任何實際訊息、報告、文獻、token、D1/R2 ID 或個人設定；請由範本建立本機設定。
+
+## 適合誰
+
+- 每週會收藏大量技術文章、論文與開源專案，希望集中閱讀的人。
+- 想用自己的 LINE、Cloudflare 與 Mac 建立私有資訊管線的開發者。
+- 希望透過 HTTP API 將既有書籤、bot 或知識管理工具串入週報流程的團隊。
+
+## 快速導覽
+
+- 想直接安裝：跳到[從零串接與安裝](#從零串接與安裝)。
+- 想串接其他工具：閱讀 [HTTP API v1](docs/API.md)。
+- 想先了解資料如何流動：閱讀[系統架構](#系統架構)與[安全及隱私模型](docs/SECURITY_AND_PRIVACY.md)。
+- 想參與開發：閱讀[貢獻指南](CONTRIBUTING.md)與 [Security Policy](SECURITY.md)。
+
+使用者平日只要把論文、GitHub、新聞或社群貼文分享到 LINE；需要週報時按下 Rich Menu，Mac 會自動收集、解析、撰寫、排版並產生 Podcast，完成後把可在手機直接閱讀的 PDF 與音訊送回 LINE。
 
 > 目前是 macOS 單機版。Cloudflare Worker 持續在線，但 LLM、PDF 與 Podcast 都由已登入使用者帳號的 Mac 執行；Mac 關機或登出時，工作會保留在 `queued`，下次開機登入後再接手。
 
@@ -129,7 +151,8 @@ stateDiagram-v2
 以下指令都從專案根目錄執行：
 
 ```bash
-cd "/path/to/週報生成專案"
+git clone https://github.com/Kuanyu458/Link2News.git
+cd Link2News
 ```
 
 ### 步驟 1：執行本機 bootstrap
