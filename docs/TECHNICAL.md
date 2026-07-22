@@ -197,6 +197,19 @@ output/YYYY-Www/
 └── assets/
 ```
 
+## README 展示素材
+
+公開 repository 的週報截圖使用公開文獻與已標示來源的 CC BY 4.0 圖片；Podcast Demo 使用合成文本與系統語音。兩者均可重複產生：
+
+版面規則要求每篇本週焦點、重點文獻與學術動向都綁定一張屬於引用原文的圖表。若 PDF 無法辨識 Figure／Table caption，才以該篇論文首頁預覽保底。
+
+```bash
+.venv/bin/python scripts/generate_readme_preview.py
+./scripts/generate_podcast_demo.sh
+```
+
+Podcast Demo 需要 macOS `say` 與 `ffmpeg`；產出的 MP3 不含真實連結、使用者訊息或私有週報內容。文獻圖片的來源與授權見 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。
+
 ## 監控
 
 ```bash

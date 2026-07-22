@@ -94,13 +94,13 @@
 
   .focus-grid {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(250px, 1fr);
-    grid-template-areas: "lead secondary-one" "lead secondary-two";
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "lead lead" "secondary-one secondary-two";
     column-gap: 24px;
   }
   .focus { min-width: 0; padding: 4px 0 14px; }
-  .focus.lead { grid-area: lead; padding-right: 24px; border-right: 1px solid var(--rule); }
-  .focus.secondary-one { grid-area: secondary-one; border-bottom: 1px solid var(--rule); }
+  .focus.lead { grid-area: lead; border-bottom: 1px solid var(--rule); }
+  .focus.secondary-one { grid-area: secondary-one; padding: 15px 24px 4px 0; border-right: 1px solid var(--rule); }
   .focus.secondary-two { grid-area: secondary-two; padding-top: 15px; }
   .kicker {
     display: block;
@@ -122,6 +122,8 @@
   .focus .body-cols { font-size: 15px; line-height: 1.68; }
   .focus.lead .body-cols { columns: 2; column-gap: 24px; }
   .focus:not(.lead) .body-cols { font-size: 14px; line-height: 1.62; }
+  .focus figure img { max-height: 220px; }
+  .focus.lead figure img { max-height: 300px; }
   .see {
     margin-top: 6px;
     font: 700 11px/1.4 var(--sans);
@@ -225,6 +227,7 @@
   .roundup { padding-right: 24px; border-right: 1px solid var(--rule); }
   .roundup h3.headline { font-size: 25px; line-height: 1.2; }
   .roundup .body-cols { font-size: 14.5px; }
+  .roundup figure img { max-height: 300px; }
   .terms-general { margin: 0; align-self: start; }
 
   .references {
@@ -257,11 +260,7 @@
 
   @media screen and (max-width: 1023px) {
     main { width: min(100% - 28px, 920px); padding-inline: 24px; }
-    .focus-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "lead lead" "secondary-one secondary-two"; }
-    .focus.lead { padding-right: 0; border-right: 0; border-bottom: 1px solid var(--rule); }
-    .focus.secondary-one { padding-right: 20px; border-right: 1px solid var(--rule); border-bottom: 0; }
-    .focus.secondary-two { padding-left: 20px; padding-top: 4px; }
-    .focus.lead .body-cols { columns: 2; }
+    .focus.secondary-one { padding-right: 20px; }
   }
 
   @media screen and (max-width: 739px) {
@@ -320,7 +319,8 @@
       font-size: 8.2pt;
       break-after: avoid;
     }
-    .featured-head { break-before: page; }
+    .featured-head { column-span: none; }
+    .closing-head { break-before: auto; }
     .focus-grid, .featured-grid, .closing-grid { display: block; }
     .focus, .focus.lead, .focus.secondary-one, .focus.secondary-two,
     article.paper, article.paper:nth-child(odd), .roundup {
@@ -334,6 +334,7 @@
     .focus .body-cols, .focus.lead .body-cols, .focus:not(.lead) .body-cols,
     .paper .body-cols, .roundup .body-cols { columns: 1; font-size: 8.7pt; line-height: 1.5; }
     .paper h3.headline, .roundup h3.headline { font-size: 13.5pt; line-height: 1.18; }
+    .roundup h3.headline { break-inside: avoid; break-after: avoid; }
     .kicker, .refbadge { font-size: 6.8pt; }
     .paper .meta { font-size: 6.8pt; line-height: 1.4; }
     .abstract-box { margin-bottom: 2mm; padding: 2mm; }
@@ -341,6 +342,8 @@
     .abstract-box b { font-size: 6.8pt; }
     figure { margin: 2.5mm 0; }
     figure img { max-height: 42mm; }
+    .focus figure img { max-height: 32mm; }
+    .roundup figure img { max-height: 36mm; }
     figcaption { padding: 1.2mm 0; font-size: 6.7pt; }
     .terms-side, .terms-general, .flaw-box { margin: 2.3mm 0; padding: 2mm; }
     .terms-side h4, .terms-general h4, .flaw-box h4 { font-size: 6.8pt; }
@@ -355,6 +358,7 @@
     .references h3 { column-span: none; font-size: 7.5pt; }
     .references li { margin-bottom: 1.5mm; font-size: 6.6pt; line-height: 1.35; }
     .references .lib, .colophon { font-size: 6pt; }
+    .references .lib { display: none; }
     .colophon { column-span: none; }
     a { color: inherit; text-decoration: none; }
   }
@@ -388,6 +392,12 @@
       <div class="body-cols">
         {% for p in f.paragraphs %}<p>{{ p }}</p>{% endfor %}
       </div>
+      {% if f.figures and f.figures|length > 0 %}
+      <figure class="focus-figure">
+        <img src="{{ f.figures[0].path }}" alt="{{ f.figures[0].caption }}">
+        <figcaption>{{ f.figures[0].caption }}</figcaption>
+      </figure>
+      {% endif %}
       <div class="see sans">延伸閱讀 {% for r in f.refs %}〔{{ r }}〕{% endfor %}</div>
     </article>
     {% endfor %}
@@ -441,11 +451,17 @@
     {% endfor %}
   </section>
 
-  <div class="section-head sans"><span class="no">03</span><span>學術動向</span></div>
+  <div class="section-head closing-head sans"><span class="no">03</span><span>學術動向</span></div>
   <section class="closing-grid" aria-label="學術動向與新詞">
     <article class="roundup">
       <h3 class="headline">{{ roundup.headline }}</h3>
       <div class="body-cols">{% for p in roundup.paragraphs %}<p>{{ p }}</p>{% endfor %}</div>
+      {% if roundup.figures and roundup.figures|length > 0 %}
+      <figure class="roundup-figure">
+        <img src="{{ roundup.figures[0].path }}" alt="{{ roundup.figures[0].caption }}">
+        <figcaption>{{ roundup.figures[0].caption }}</figcaption>
+      </figure>
+      {% endif %}
     </article>
     {% if general_terms %}
     <aside class="terms-general">
@@ -465,7 +481,7 @@
       {% endfor %}
     </ol>
     <div class="colophon">
-      {{ masthead }}｜週報自動生成系統｜文獻庫：{{ library_dir }}｜語音導讀約 {{ podcast_minutes }} 分鐘
+      {{ masthead }}｜週報自動生成系統｜引用來源見上列｜語音導讀約 {{ podcast_minutes }} 分鐘
     </div>
   </section>
 </main>
