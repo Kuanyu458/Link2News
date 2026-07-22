@@ -8,6 +8,6 @@
     "deploy": "wrangler deploy --config collector/wrangler.toml"
   },
   "devDependencies": {
-    "wrangler": "4.110.0"
+    "wrangler": "4.113.0"
   }
 }
