@@ -3,7 +3,10 @@ import logging
 import re
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 
-from common import collector_get, week_start_ms
+try:
+    from .common import collector_get, week_start_ms
+except ImportError:  # direct ``python pipeline/main.py`` compatibility
+    from common import collector_get, week_start_ms
 
 log = logging.getLogger("weekly.fetch")
 
