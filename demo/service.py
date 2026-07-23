@@ -199,7 +199,10 @@ class DemoService:
                 raise DemoRejectedError("所有來源都無法安全擷取，因此沒有產生空白報告。")
 
             update(0.52, "產生結構化摘要與 Podcast 腳本")
-            report = self.provider.generate_digest(build_prompt(records))
+            report = self.provider.generate_digest(
+                build_prompt(records),
+                allowed_source_ids={record.id for record in records},
+            )
             update(0.70, "排版一頁週報")
             html_path = render_html(report, records, job_dir / "report.html")
             pdf_path = render_pdf(html_path, job_dir / "report.pdf")

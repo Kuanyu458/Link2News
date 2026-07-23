@@ -62,3 +62,13 @@ class DemoProviderTests(unittest.TestCase):
             GeminiProvider(
                 api_key="test", session=FakeSession([FakeResponse(payload=payload)])
             ).generate_digest("prompt")
+
+    def test_source_not_present_in_this_job_is_rejected(self):
+        data = valid_digest()
+        data["sources"][0]["id"] = 2
+        data["highlights"][0]["source_ids"] = [2]
+        payload = {"candidates": [{"content": {"parts": [{"text": json.dumps(data)}]}}]}
+        with self.assertRaisesRegex(ProviderUnavailableError, "假來源"):
+            GeminiProvider(
+                api_key="test", session=FakeSession([FakeResponse(payload=payload)])
+            ).generate_digest("prompt", allowed_source_ids={1, 3})

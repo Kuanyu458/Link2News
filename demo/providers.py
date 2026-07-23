@@ -36,7 +36,11 @@ class GeminiProvider:
             "DEMO_TTS_MODEL", DEFAULT_TTS_MODEL)
         self.session = session or requests.Session()
 
-    def generate_digest(self, prompt: str) -> dict[str, Any]:
+    def generate_digest(
+        self,
+        prompt: str,
+        allowed_source_ids: set[int] | None = None,
+    ) -> dict[str, Any]:
         self._require_key()
         schema = digest_json_schema()
         payload = {
@@ -58,7 +62,7 @@ class GeminiProvider:
             data = json.loads(text)
         except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
             raise ProviderUnavailableError("Gemini 回傳格式無法解析。") from exc
-        return validate_digest(data)
+        return validate_digest(data, allowed_source_ids)
 
     def synthesize(self, transcript: list[dict[str, str]], destination: Path) -> Path:
         self._require_key()
@@ -210,7 +214,10 @@ def digest_json_schema() -> dict[str, Any]:
     }
 
 
-def validate_digest(data: Any) -> dict[str, Any]:
+def validate_digest(
+    data: Any,
+    allowed_source_ids: set[int] | None = None,
+) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ProviderUnavailableError("Gemini 摘要不是物件格式。")
     for key in ("title", "dek", "highlights", "sources", "podcast"):
@@ -222,6 +229,8 @@ def validate_digest(data: Any) -> dict[str, Any]:
     }
     if not source_ids or not source_ids.issubset(set(range(1, 6))):
         raise ProviderUnavailableError("Gemini 回傳無效來源編號。")
+    if allowed_source_ids is not None and not source_ids.issubset(allowed_source_ids):
+        raise ProviderUnavailableError("Gemini 回傳了本次未提供的假來源。")
     for item in data["highlights"]:
         refs = set(item.get("source_ids") or []) if isinstance(item, dict) else set()
         if not refs or not refs.issubset(source_ids):
