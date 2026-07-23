@@ -1,0 +1,14 @@
+.git
+.venv
+output
+downloads
+tmp
+文獻庫
+tests
+collector
+launchd
+docs
+**/__pycache__
+*.pyc
+*.env
+secrets.env

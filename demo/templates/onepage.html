@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ report.title }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#15231f; --muted:#5d6b66; --paper:#fbfaf4; --accent:#d75b38; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; background:#e8ece8; color:var(--ink); font-family:"Noto Sans TC",system-ui,sans-serif; }
+    main { width:210mm; height:297mm; margin:18px auto; padding:13mm 14mm 11mm; background:var(--paper); overflow:hidden; }
+    header { border-bottom:3px solid var(--ink); padding-bottom:5mm; margin-bottom:5mm; }
+    .brand { color:var(--accent); font-size:10px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { font-family:"Noto Serif TC",serif; font-size:29px; line-height:1.08; margin:2mm 0; }
+    .dek { color:var(--muted); font-size:13px; line-height:1.5; margin:0; }
+    .highlights { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4mm; }
+    article { border-top:1px solid #aab3ae; padding-top:3mm; min-width:0; }
+    h2 { font-family:"Noto Serif TC",serif; font-size:16px; line-height:1.25; margin:0 0 2mm; }
+    p { font-size:11px; line-height:1.58; margin:0; }
+    .refs { color:var(--accent); font-size:9px; font-weight:700; margin-top:2mm; }
+    .sources { border-top:2px solid var(--ink); margin-top:6mm; padding-top:4mm; }
+    h3 { font-size:11px; letter-spacing:.1em; margin:0 0 2mm; }
+    .source-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2.5mm 6mm; }
+    .source { font-size:9px; line-height:1.35; overflow-wrap:anywhere; }
+    .source a { color:var(--ink); text-decoration:none; font-weight:700; }
+    footer { margin-top:5mm; color:var(--muted); font-size:8px; }
+    @page { size:A4; margin:0; }
+    @media print { html,body { background:white; } main { margin:0; } }
+    @media (max-width: 700px) {
+      html,body { background:var(--paper); overflow-x:hidden; }
+      main { width:100%; height:auto; min-height:100vh; margin:0; padding:24px 18px; overflow:visible; }
+      h1 { font-size:28px; }
+      .highlights,.source-grid { grid-template-columns:1fr; }
+      article { padding-top:14px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand">Link2News · Public Preview</div>
+    <h1>{{ report.title }}</h1>
+    <p class="dek">{{ report.dek }}</p>
+  </header>
+  <section class="highlights">
+    {% for item in report.highlights %}
+    <article>
+      <h2>{{ item.headline }}</h2>
+      <p>{{ item.summary }}</p>
+      <div class="refs">
+        {% for source_id in item.source_ids %}
+          <a href="{{ source_urls[source_id] }}" rel="noopener noreferrer">來源 {{ source_id }}</a>{% if not loop.last %} · {% endif %}
+        {% endfor %}
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+  <section class="sources">
+    <h3>本次公開來源</h3>
+    <div class="source-grid">
+      {% for item in report.sources %}
+      <div class="source">
+        <a href="{{ source_urls[item.id] }}" rel="noopener noreferrer">{{ item.id }}. {{ item.title }}</a><br>
+        {{ item.summary }}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  <footer>此內容由 AI 依本頁列出的公開來源整理，屬試用預覽；重要資訊請回原文核對。</footer>
+</main>
+</body>
+</html>
