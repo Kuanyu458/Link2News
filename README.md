@@ -7,7 +7,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10--3.13-blue)
 ![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey)
 
-[English](README.en.md) · [安裝與技術文件](docs/TECHNICAL.md) · [HTTP API](docs/API.md) · [安全與隱私](docs/SECURITY_AND_PRIVACY.md)
+[English](README.en.md) · [安裝與技術文件](docs/TECHNICAL.md) · [Adapter 契約](docs/ADAPTERS.md) · [公開 Demo](docs/DEMO.md) · [HTTP API](docs/API.md) · [安全與隱私](docs/SECURITY_AND_PRIVACY.md)
 
 ## 成果展示
 
@@ -52,7 +52,22 @@
 
 # 不連外、不寫入產物的預檢
 .venv/bin/weekly-report run --dry-run
+
+# 不經 LINE：從文字檔讀取網址，產物留在 ./out/<週次>/
+.venv/bin/weekly-report run --input links.txt --output ./out
 ```
+
+## 完整自架與公開 Demo
+
+完整自架版保留既有 LINE、Cloudflare、Mac runner、完整週報與原設定長度的
+Podcast。聊天平台可透過公開的
+[source／delivery adapter 契約](docs/ADAPTERS.md) 更換；核心專案只維護契約、
+LINE 相容實作與測試。
+
+`demo/` 則是完全獨立的 Hugging Face Docker Space 預覽：訪客不用提供 key，
+可輸入最多 5 個公開網址，取得一頁 A4 PDF 與約 3 分鐘 Podcast。Demo 無 SLA、
+會有冷啟動、每日免費額度與 60 分鐘保存限制；目前部署與隱私設定請看
+[公開 Demo 文件](docs/DEMO.md)。
 
 ## 使用限制
 
@@ -93,6 +108,8 @@ cd Link2News
 |---|---|
 | [安裝與技術文件](docs/TECHNICAL.md) | 架構、資料流、部署、CLI、維運與疑難排解 |
 | [HTTP API v1](docs/API.md) | 外部工具新增連結、建立與查詢工作 |
+| [Adapter 契約](docs/ADAPTERS.md) | 替換聊天來源與交付平台、entry point 與錯誤語意 |
+| [公開 Demo](docs/DEMO.md) | 一頁／三分鐘試用版、安全限制、Docker 與 Space 部署 |
 | [安全與隱私](docs/SECURITY_AND_PRIVACY.md) | 信任邊界、資料保存、R2 簽章網址與責任範圍 |
 | [貢獻指南](CONTRIBUTING.md) | 開發環境、測試與 pull request 規範 |
 | [Security Policy](SECURITY.md) | 私下回報安全問題 |
