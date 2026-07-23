@@ -28,9 +28,30 @@ from urllib.parse import urlparse
 # installed `weekly-report` console entry point.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from common import (load_config, load_secrets, setup_logging, week_key,
-                    output_dir, save_json, load_json, line_push,
-                    line_push_messages)
+try:
+    from .common import (load_config, load_secrets, setup_logging, week_key,
+                         output_dir, save_json, load_json, line_push,
+                         line_push_messages)
+    from .adapters import (
+        Artifact,
+        CollectRequest,
+        DeliveryEvent,
+        deduplicate_external_ids,
+        load_delivery_adapter,
+        load_source_adapter,
+    )
+except ImportError:  # direct ``python pipeline/main.py`` compatibility
+    from common import (load_config, load_secrets, setup_logging, week_key,
+                        output_dir, save_json, load_json, line_push,
+                        line_push_messages)
+    from adapters import (
+        Artifact,
+        CollectRequest,
+        DeliveryEvent,
+        deduplicate_external_ids,
+        load_delivery_adapter,
+        load_source_adapter,
+    )
 
 log = logging.getLogger("weekly.main")
 
@@ -303,7 +324,7 @@ def rerender_existing(cfg: dict, wk: str) -> Path:
     return pdf_path
 
 
-def collect(cfg, secrets, wk, dry_run=False, job_id="") -> dict | None:
+def collect(cfg, secrets, wk, dry_run=False, job_id="", source_adapter=None) -> dict | None:
     """收集：拉連結 → 解析 → 抓內容。回傳 ingested（無連結時回 None）。"""
     from fetch import fetch_week_links
     from resolve import resolve_links
@@ -311,7 +332,16 @@ def collect(cfg, secrets, wk, dry_run=False, job_id="") -> dict | None:
 
     out = output_dir(cfg, wk)
     with JobProgress(cfg, secrets, job_id, "收集本週 LINE 連結") as progress:
-        links = TEST_LINKS if dry_run else fetch_week_links(cfg, secrets)
+        if dry_run:
+            links = TEST_LINKS
+        elif source_adapter is None:
+            links = fetch_week_links(cfg, secrets)
+        else:
+            links = [
+                item.as_pipeline_item()
+                for item in deduplicate_external_ids(
+                    source_adapter.collect(CollectRequest(week=wk, mode="all")))
+            ]
         if not links:
             log.info("no links this week")
             if not dry_run:
@@ -348,7 +378,8 @@ def collect(cfg, secrets, wk, dry_run=False, job_id="") -> dict | None:
         return ingested
 
 
-def generate(cfg, secrets, wk, dry_run=False, job_id="", reuse_previous=False):
+def generate(cfg, secrets, wk, dry_run=False, job_id="", reuse_previous=False,
+             delivery_adapter=None, delivery_name="line"):
     """生成：策展 → 選詞 → 報告 → star → podcast → 報紙 → 通知。"""
     from curate import curate
     from terms import extract_terms, auto_select_terms, record_explained
@@ -431,28 +462,72 @@ def generate(cfg, secrets, wk, dry_run=False, job_id="", reuse_previous=False):
     if dry_run:
         print("\n" + msg)
     else:
+        phase = ("上傳 PDF 與 Podcast 到手機閱讀庫"
+                 if delivery_name == "line" else "整理本機輸出檔案")
         _push_job_status(
-            cfg, secrets, job_id, "running", "上傳 PDF 與 Podcast 到手機閱讀庫",
+            cfg, secrets, job_id, "running", phase,
             progress_done=source_total, progress_total=source_total)
         try:
-            artifacts = publish_artifacts(
-                cfg, secrets, wk, pdf_path, podcast_path, layout, msg)
+            if delivery_adapter is None:
+                delivery_adapter = load_delivery_adapter(
+                    delivery_name, cfg, secrets)
+            event_artifacts = [
+                Artifact.from_path("pdf", pdf_path, "application/pdf"),
+            ]
+            html_path = out / "newspaper.html"
+            if html_path.exists():
+                event_artifacts.append(
+                    Artifact.from_path("html", html_path, "text/html"))
+            if podcast_path and podcast_path.exists():
+                event_artifacts.append(Artifact.from_path(
+                    "audio", podcast_path, "audio/mpeg",
+                    _podcast_duration_ms(podcast_path)))
+            receipt = delivery_adapter.publish(DeliveryEvent(
+                status="completed",
+                phase=result_phase,
+                week=wk,
+                progress_done=source_total,
+                progress_total=source_total,
+                summary=msg,
+                artifacts=tuple(event_artifacts),
+                metadata={"layout": layout, "unresolved": unresolved},
+            ))
+            if not receipt.ok:
+                raise RuntimeError(receipt.error or f"{delivery_name} delivery failed")
+            artifacts = dict(receipt.items)
             delivery_status = "ready"
-            _push_snapshot(
-                cfg, secrets, wk, layout, unresolved, source_total,
-                artifacts, delivery_status)
+            if delivery_name == "line":
+                _push_snapshot(
+                    cfg, secrets, wk, layout, unresolved, source_total,
+                    artifacts, delivery_status)
+            elif receipt.items:
+                print(json.dumps({
+                    "week": wk,
+                    "delivery": delivery_name,
+                    "artifacts": receipt.items,
+                }, ensure_ascii=False, indent=2))
         except Exception as exc:
             delivery_status = "failed"
-            log.error("mobile artifact delivery failed:\n%s", traceback.format_exc())
-            line_push(
-                secrets, cfg["line"]["push_to"],
-                f"⚠️ {wk} 週報已在 Mac 生成完成，但手機檔案發布失敗。\n"
-                f"原因：{str(exc)[:500]}\n"
-                f"可稍後執行：python pipeline/main.py --publish --week {wk}")
-            _push_snapshot(
-                cfg, secrets, wk, layout, unresolved, source_total,
-                {}, delivery_status)
-            result_phase += "，手機檔案發布失敗"
+            log.error("%s delivery failed:\n%s", delivery_name, traceback.format_exc())
+            if delivery_name == "line":
+                line_push(
+                    secrets, cfg["line"]["push_to"],
+                    f"⚠️ {wk} 週報已在 Mac 生成完成，但手機檔案發布失敗。\n"
+                    f"原因：{str(exc)[:500]}\n"
+                    f"可稍後執行：python pipeline/main.py --publish --week {wk}")
+                _push_snapshot(
+                    cfg, secrets, wk, layout, unresolved, source_total,
+                    {}, delivery_status)
+            else:
+                print(json.dumps({
+                    "week": wk,
+                    "delivery": delivery_name,
+                    "delivery_status": "failed",
+                    "generation_status": "completed",
+                    "error": str(exc)[:500],
+                    "output": str(out.resolve()),
+                }, ensure_ascii=False, indent=2))
+            result_phase += "，內容生成完成但交付失敗"
     _push_job_status(
         cfg, secrets, job_id, "completed", result_phase,
         progress_done=source_total, progress_total=source_total,
@@ -500,10 +575,26 @@ def main():
     ap.add_argument("--week", help="指定週期鍵（預設本週），如 2026-W28")
     ap.add_argument("--llm", help="覆寫生成模型（backend:model），如 claude-cli:claude-opus-4-8")
     ap.add_argument("--job-id", default="", help="Collector 生成工作 ID（LINE 進度回報用）")
+    ap.add_argument("--input", help="URL 文字檔；使用 - 可從 stdin 讀取")
+    ap.add_argument("--output", help="覆寫產物輸出資料夾")
+    ap.add_argument("--source-adapter", help="輸入 adapter 名稱")
+    ap.add_argument("--delivery-adapter", help="交付 adapter 名稱")
     args = ap.parse_args()
 
     cfg = load_config()
     secrets = load_secrets()
+    if args.output:
+        cfg["output_dir"] = str(Path(args.output).expanduser().resolve())
+
+    source_name = args.source_adapter or (
+        "file" if args.input else cfg.get("source", {}).get("adapter", "collector"))
+    delivery_name = args.delivery_adapter or (
+        "local" if args.input else cfg.get("delivery", {}).get("adapter", "line"))
+    source_options = {"path": args.input or "-"}
+    source_adapter = load_source_adapter(
+        source_name, cfg, secrets, source_options)
+    delivery_adapter = load_delivery_adapter(
+        delivery_name, cfg, secrets)
 
     # LINE 選單「指定生成模型」的覆寫
     if args.llm:
@@ -531,6 +622,10 @@ def main():
             "week": wk,
             "llm_backend": cfg.get("llm", {}).get("backend"),
             "collector": cfg.get("collector", {}).get("base_url"),
+            "source_adapter": source_name,
+            "delivery_adapter": delivery_name,
+            "input": args.input,
+            "output": cfg.get("output_dir"),
             "external_writes": [],
             "note": "No LINE, D1, R2, GitHub, LLM, TTS, or output write was performed.",
         }, ensure_ascii=False, indent=2))
@@ -562,15 +657,21 @@ def main():
 
     try:
         if do_all:
-            ingested = collect(cfg, secrets, wk, args.dry_run, args.job_id)
+            ingested = collect(
+                cfg, secrets, wk, args.dry_run, args.job_id, source_adapter)
             if ingested is not None:
-                generate(cfg, secrets, wk, args.dry_run, args.job_id)
+                generate(
+                    cfg, secrets, wk, args.dry_run, args.job_id,
+                    delivery_adapter=delivery_adapter, delivery_name=delivery_name)
             else:
                 _push_job_status(cfg, secrets, args.job_id, "completed", "本週沒有可生成的連結")
         elif do_collect:
-            collect(cfg, secrets, wk, args.dry_run, args.job_id)
+            collect(cfg, secrets, wk, args.dry_run, args.job_id, source_adapter)
         elif do_regenerate:
-            generate(cfg, secrets, wk, args.dry_run, args.job_id, reuse_previous=True)
+            generate(
+                cfg, secrets, wk, args.dry_run, args.job_id,
+                reuse_previous=True, delivery_adapter=delivery_adapter,
+                delivery_name=delivery_name)
         elif do_rerender:
             if args.dry_run:
                 raise RuntimeError("--rerender 已是離線重排，不需搭配 --dry-run")
@@ -581,7 +682,9 @@ def main():
                 raise RuntimeError("--publish 不支援 --dry-run；請省略 --dry-run")
             publish_existing(cfg, secrets, wk, args.job_id)
         else:
-            generate(cfg, secrets, wk, args.dry_run, args.job_id)
+            generate(
+                cfg, secrets, wk, args.dry_run, args.job_id,
+                delivery_adapter=delivery_adapter, delivery_name=delivery_name)
     except Exception as exc:
         log.error("pipeline failed:\n%s", traceback.format_exc())
         _push_job_status(cfg, secrets, args.job_id, "failed", "生成流程中斷", str(exc))

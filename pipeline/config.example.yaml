@@ -2,6 +2,13 @@
 collector:
   base_url: "https://weekly-report-collector.YOUR_SUBDOMAIN.workers.dev"
 
+# Optional adapter selection. Omitting these keys preserves collector + LINE.
+source:
+  adapter: "collector"
+
+delivery:
+  adapter: "line"
+
 line:
   # U... (user), C... (group), or R... (room). Keep the same value in the
   # Worker's ALLOWED_SOURCE_IDS secret/variable.

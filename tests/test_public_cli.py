@@ -38,6 +38,27 @@ class PublicCliTests(unittest.TestCase):
         self.assertTrue(payload["dry_run"])
         self.assertEqual(payload["external_writes"], [])
         self.assertEqual(payload["mode"], "all")
+        self.assertEqual(payload["source_adapter"], "collector")
+        self.assertEqual(payload["delivery_adapter"], "line")
+
+    def test_file_input_defaults_to_local_delivery_without_reading_input(self):
+        env = os.environ.copy()
+        env["WEEKLY_REPORT_CONFIG"] = str(ROOT / "pipeline" / "config.example.yaml")
+        result = subprocess.run(
+            [
+                sys.executable, "-m", "pipeline.cli", "run", "--dry-run",
+                "--input", "does-not-need-to-exist.txt", "--output", "./demo-out",
+            ],
+            cwd=ROOT,
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["source_adapter"], "file")
+        self.assertEqual(payload["delivery_adapter"], "local")
+        self.assertTrue(Path(payload["output"]).is_absolute())
 
 
 if __name__ == "__main__":
